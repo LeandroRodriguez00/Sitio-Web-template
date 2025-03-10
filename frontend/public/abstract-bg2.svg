@@ -1,0 +1,65 @@
+<!-- public/abstract-bg.svg -->
+<svg
+  width="1920"
+  height="1080"
+  viewBox="0 0 1920 1080"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Fondo degradado principal en tonos oscuros -->
+  <defs>
+    <linearGradient id="backgroundGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d0d0d" />
+      <stop offset="100%" stop-color="#1a1a1a" />
+    </linearGradient>
+
+    <!-- Degradado oscuro para figuras -->
+    <linearGradient id="darkGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#222222" />
+      <stop offset="100%" stop-color="#333333" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rectángulo de fondo -->
+  <rect width="1920" height="1080" fill="url(#backgroundGradient)" />
+
+  <!-- Figuras onduladas en gris oscuro semitransparente -->
+  <path
+    d="M0 300 C 400 450, 600 150, 1000 400 C 1400 650, 1800 100, 1920 350 L 1920 0 L 0 0 Z"
+    fill="#444444"
+    fill-opacity="0.2"
+  />
+  <path
+    d="M0 900 C 400 750, 600 1050, 1000 800 C 1400 550, 1800 1000, 1920 650 L 1920 1080 L 0 1080 Z"
+    fill="#555555"
+    fill-opacity="0.15"
+  />
+
+  <!-- Polígonos abstractos en la esquina superior derecha -->
+  <polygon
+    points="1600,100 1700,50 1800,200 1700,250"
+    fill="url(#darkGradient)"
+    fill-opacity="0.15"
+  />
+  <polygon
+    points="1700,300 1850,400 1750,450"
+    fill="url(#darkGradient)"
+    fill-opacity="0.1"
+  />
+
+  <!-- Polígono abstracto en la esquina inferior izquierda -->
+  <polygon
+    points="0,1080 200,1080 200,900"
+    fill="#333333"
+    fill-opacity="0.15"
+  />
+
+  <!-- Círculo semitransparente -->
+  <circle
+    cx="300"
+    cy="200"
+    r="100"
+    fill="#555555"
+    fill-opacity="0.1"
+  />
+</svg>
