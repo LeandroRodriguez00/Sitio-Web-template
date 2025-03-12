@@ -19,6 +19,7 @@ import {
   Fade
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { keyframes } from '@emotion/react';
 import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
@@ -26,8 +27,12 @@ import Home from './components/Home';
 import ProductList from './components/ProductList';
 import CreateProduct from './components/CreateProduct';
 import UpdateProduct from './components/UpdateProduct';
+import Checkout from './components/Checkout';
+import AdminPanel from './components/AdminPanel'; // Nuevo panel de administración
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider, AuthContext } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
+import CartSidebar from './components/CartSidebar';
 
 // Animación para el zoom del modal
 const modalZoomIn = keyframes`
@@ -53,6 +58,7 @@ function AppContent() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [cartOpen, setCartOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
 
   const toggleDrawer = (open) => (event) => {
@@ -62,7 +68,7 @@ function AppContent() {
     setDrawerOpen(open);
   };
 
-  // Definir los enlaces del navbar según el estado del usuario
+  // Definir enlaces del navbar según el estado del usuario
   let navLinks = [];
   if (!user) {
     navLinks = [
@@ -72,8 +78,10 @@ function AppContent() {
     ];
   } else {
     navLinks = [{ title: 'Productos', path: '/products' }];
+    // Para administradores, se agregan opciones adicionales
     if (user.role && user.role.toLowerCase() === 'admin') {
       navLinks.push({ title: 'Crear Producto', path: '/products/create' });
+      navLinks.push({ title: 'Stock', path: '/admin' });
     }
   }
 
@@ -152,6 +160,12 @@ function AppContent() {
               >
                 Mi Aplicación Profesional {user ? `- Bienvenido ${user.name}` : ''}
               </Typography>
+              {/* Mostrar carrito solo si hay usuario y NO es admin */}
+              {user && user.role.toLowerCase() !== 'admin' && (
+                <IconButton onClick={() => setCartOpen(true)} sx={{ color: '#fff' }}>
+                  <ShoppingCartIcon />
+                </IconButton>
+              )}
               <Drawer
                 anchor="left"
                 open={drawerOpen}
@@ -193,16 +207,24 @@ function AppContent() {
                 </Button>
               ))}
               {user && (
-                <Button
-                  color="inherit"
-                  onClick={logout}
-                  sx={{
-                    transition: 'transform 0.3s, color 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', color: '#bdbdbd' }
-                  }}
-                >
-                  Cerrar sesión
-                </Button>
+                <>
+                  <Button
+                    color="inherit"
+                    onClick={logout}
+                    sx={{
+                      transition: 'transform 0.3s, color 0.3s',
+                      '&:hover': { transform: 'scale(1.05)', color: '#bdbdbd' }
+                    }}
+                  >
+                    Cerrar sesión
+                  </Button>
+                  {/* Mostrar carrito solo si el usuario no es admin */}
+                  {user.role.toLowerCase() !== 'admin' && (
+                    <IconButton onClick={() => setCartOpen(true)} sx={{ color: '#fff' }}>
+                      <ShoppingCartIcon />
+                    </IconButton>
+                  )}
+                </>
               )}
             </>
           )}
@@ -277,8 +299,27 @@ function AppContent() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/checkout"
+            element={
+              <PrivateRoute>
+                <Checkout />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <AdminPanel />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Container>
+
+      {/* Integración del CartSidebar */}
+      <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} />
     </Box>
   );
 }
@@ -286,9 +327,11 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
+      <CartProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </CartProvider>
     </AuthProvider>
   );
 }

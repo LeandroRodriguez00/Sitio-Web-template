@@ -24,6 +24,11 @@ const productSchema = new mongoose.Schema({
   available: {
     type: Boolean,
     default: true,
+  },
+  stock: {
+    type: Number,
+    required: [true, 'El stock es obligatorio'],
+    min: [0, 'El stock no puede ser negativo']
   }
 }, {
   timestamps: true // Crea los campos createdAt y updatedAt

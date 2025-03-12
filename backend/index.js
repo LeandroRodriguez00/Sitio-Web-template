@@ -4,7 +4,8 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
-import contactRoutes from './routes/contactRoutes.js'; // Importamos la nueva ruta de contacto
+import contactRoutes from './routes/contactRoutes.js'; // Ruta de contacto
+import stockMovementRoutes from './routes/stockMovementRoutes.js'; // Nueva ruta de movimientos de stock
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -27,7 +28,8 @@ mongoose.connect(process.env.MONGO_URI)
 // Rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api', contactRoutes); // Se agrega la ruta para el endpoint de contacto
+app.use('/api', contactRoutes); // Endpoint de contacto
+app.use('/api/stock-movements', stockMovementRoutes); // Endpoint de movimientos de stock
 
 // Ruta de prueba
 app.get('/', (req, res) => {

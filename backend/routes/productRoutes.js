@@ -6,6 +6,7 @@ import {
   updateProduct,
   deleteProduct
 } from '../controllers/productController.js';
+import { adjustStock } from '../controllers/stockController.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { adminMiddleware } from '../middleware/adminMiddleware.js';
 import { upload } from '../middleware/upload.js';
@@ -32,6 +33,9 @@ router.put(
   upload.single('images'), // Procesa la imagen si la hay, si no, req.file será undefined
   updateProduct
 );
+
+// Nuevo endpoint para ajustar el stock (incrementar o decrementar)
+router.patch('/:id/stock', authMiddleware, adminMiddleware, adjustStock);
 
 router.delete('/:id', authMiddleware, adminMiddleware, deleteProduct);
 
