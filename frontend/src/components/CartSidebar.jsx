@@ -1,4 +1,3 @@
-// src/components/CartSidebar.jsx
 import React, { useContext } from 'react';
 import {
   Drawer,
@@ -22,11 +21,11 @@ const CartSidebar = ({ open, onClose }) => {
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useContext(CartContext);
   const navigate = useNavigate();
 
-  // Calcula el costo total sumando el subtotal de cada producto
-  const totalCost = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  // Calcular el costo total usando product.price
+  const totalCost = cartItems.reduce((acc, item) => {
+    const price = item.product?.price ?? 0;
+    return acc + price * item.quantity;
+  }, 0);
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
@@ -56,51 +55,57 @@ const CartSidebar = ({ open, onClose }) => {
           ) : (
             <List>
               {cartItems.map((item) => {
-                // Definir URL de la imagen (puedes ajustar según tu lógica)
+                // Extrae el producto y la cantidad
+                const { product, quantity, _id } = item;
                 const imageUrl =
-                  item.images && item.images.length > 0
-                    ? `http://localhost:5000/uploads/${item.images[0]}`
+                  product?.images && product.images.length > 0
+                    ? `http://localhost:5000/uploads/${product.images[0]}`
                     : 'https://via.placeholder.com/100';
+
                 return (
-                  <ListItem key={item._id} sx={{ mb: 2, borderBottom: '1px solid #444' }}>
+                  <ListItem key={_id} sx={{ mb: 2, borderBottom: '1px solid #444' }}>
                     <Grid container spacing={1} alignItems="center">
                       {/* Imagen del producto */}
                       <Grid item xs={3}>
                         <CardMedia
                           component="img"
                           image={imageUrl}
-                          alt={item.name}
+                          alt={product?.name || 'Producto'}
                           sx={{ borderRadius: 1 }}
                         />
                       </Grid>
                       {/* Información del producto */}
                       <Grid item xs={9}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                          {item.name}
+                          {product?.name}
                         </Typography>
                         <Typography variant="body2">
-                          Precio: ${item.price.toFixed(2)}
+                          Precio: ${product?.price?.toFixed(2) ?? '0.00'}
                         </Typography>
                         <Typography variant="body2">
-                          Subtotal: ${(item.price * item.quantity).toFixed(2)}
+                          Subtotal: ${((product?.price ?? 0) * quantity).toFixed(2)}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                           <IconButton
-                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                            disabled={item.quantity <= 1}
+                            onClick={() => {
+                              if (quantity > 1) {
+                                updateQuantity(product._id, quantity - 1);
+                              }
+                            }}
+                            disabled={quantity <= 1}
                             sx={{ color: '#fff' }}
                           >
                             <RemoveIcon fontSize="small" />
                           </IconButton>
-                          <Typography sx={{ mx: 1 }}>{item.quantity}</Typography>
+                          <Typography sx={{ mx: 1 }}>{quantity}</Typography>
                           <IconButton
-                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                            onClick={() => updateQuantity(product._id, quantity + 1)}
                             sx={{ color: '#fff' }}
                           >
                             <AddIcon fontSize="small" />
                           </IconButton>
                           <IconButton
-                            onClick={() => removeFromCart(item._id)}
+                            onClick={() => removeFromCart(product._id)}
                             sx={{ color: '#f44336', ml: 1 }}
                           >
                             <DeleteIcon fontSize="small" />

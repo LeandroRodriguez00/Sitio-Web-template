@@ -28,7 +28,7 @@ import ProductList from './components/ProductList';
 import CreateProduct from './components/CreateProduct';
 import UpdateProduct from './components/UpdateProduct';
 import Checkout from './components/Checkout';
-import AdminPanel from './components/AdminPanel'; // Nuevo panel de administración
+import AdminPanel from './components/AdminPanel'; // Panel de administración
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -78,7 +78,7 @@ function AppContent() {
     ];
   } else {
     navLinks = [{ title: 'Productos', path: '/products' }];
-    // Para administradores, se agregan opciones adicionales
+    // Opciones adicionales para administradores
     if (user.role && user.role.toLowerCase() === 'admin') {
       navLinks.push({ title: 'Crear Producto', path: '/products/create' });
       navLinks.push({ title: 'Stock', path: '/admin' });
@@ -160,7 +160,7 @@ function AppContent() {
               >
                 Mi Aplicación Profesional {user ? `- Bienvenido ${user.name}` : ''}
               </Typography>
-              {/* Mostrar carrito solo si hay usuario y NO es admin */}
+              {/* Mostrar carrito solo para usuarios logueados y no admin */}
               {user && user.role.toLowerCase() !== 'admin' && (
                 <IconButton onClick={() => setCartOpen(true)} sx={{ color: '#fff' }}>
                   <ShoppingCartIcon />

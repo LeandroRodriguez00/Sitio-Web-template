@@ -1,48 +1,81 @@
-// src/context/CartContext.jsx
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import axios from 'axios';
+import { AuthContext } from './AuthContext';
 
-// Crear el contexto
 export const CartContext = createContext();
 
-// Proveedor del contexto
 export const CartProvider = ({ children }) => {
-  // Estado inicial del carrito: un arreglo vacío
+  const { token } = useContext(AuthContext);
   const [cartItems, setCartItems] = useState([]);
 
+  // Cargar el carrito desde la base de datos cuando hay token
+  useEffect(() => {
+    if (token) {
+      fetchCartFromDB();
+    } else {
+      setCartItems([]);
+    }
+  }, [token]);
+
+  // Función para obtener el carrito del backend
+  const fetchCartFromDB = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/cart', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Se asume que el backend devuelve un objeto con { items: [...] }
+      setCartItems(res.data.items || []);
+    } catch (error) {
+      console.error('Error al obtener el carrito:', error);
+    }
+  };
+
   // Función para agregar un producto al carrito
-  const addToCart = (product) => {
-    setCartItems((prevItems) => {
-      // Buscar si el producto ya existe en el carrito
-      const existItem = prevItems.find(item => item._id === product._id);
-      if (existItem) {
-        // Si ya existe, aumentar la cantidad
-        return prevItems.map(item =>
-          item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      } else {
-        // Si no existe, agregarlo con cantidad inicial de 1
-        return [...prevItems, { ...product, quantity: 1 }];
-      }
-    });
+  const addToCart = async (product, quantity = 1) => {
+    try {
+      const res = await axios.post(
+        'http://localhost:5000/api/cart',
+        { productId: product._id, quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // Actualiza el estado con el carrito devuelto por el backend
+      setCartItems(res.data.items);
+    } catch (error) {
+      console.error('Error al agregar producto al carrito:', error);
+    }
+  };
+
+  // Función para actualizar la cantidad de un producto en el carrito
+  const updateQuantity = async (productId, newQuantity) => {
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/cart/${productId}`,
+        { quantity: newQuantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCartItems(res.data.items);
+    } catch (error) {
+      console.error('Error al actualizar la cantidad del producto:', error);
+    }
   };
 
   // Función para eliminar un producto del carrito
-  const removeFromCart = (productId) => {
-    setCartItems((prevItems) => prevItems.filter(item => item._id !== productId));
+  const removeFromCart = async (productId) => {
+    try {
+      const res = await axios.delete(`http://localhost:5000/api/cart/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCartItems(res.data.items);
+    } catch (error) {
+      console.error('Error al eliminar producto del carrito:', error);
+    }
   };
 
-  // Función para actualizar la cantidad de un producto
-  const updateQuantity = (productId, quantity) => {
-    setCartItems((prevItems) =>
-      prevItems.map(item =>
-        item._id === productId ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  // Función para limpiar el carrito
-  const clearCart = () => {
-    setCartItems([]);
+  // Función para vaciar el carrito (eliminando uno a uno)
+  const clearCart = async () => {
+    for (const item of cartItems) {
+      await removeFromCart(item.product._id);
+    }
   };
 
   return (
@@ -50,12 +83,15 @@ export const CartProvider = ({ children }) => {
       value={{
         cartItems,
         addToCart,
-        removeFromCart,
         updateQuantity,
+        removeFromCart,
         clearCart,
+        fetchCartFromDB,
       }}
     >
       {children}
     </CartContext.Provider>
   );
 };
+
+export default CartContext;

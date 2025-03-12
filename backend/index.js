@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import contactRoutes from './routes/contactRoutes.js'; // Ruta de contacto
 import stockMovementRoutes from './routes/stockMovementRoutes.js'; // Nueva ruta de movimientos de stock
+import cartRoutes from './routes/cartRoutes.js'; // <-- Importa tus rutas de carrito
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -17,7 +18,6 @@ app.use(express.json());
 app.use(cors());
 
 // Servir archivos estáticos de la carpeta "uploads"
-// Esto permite acceder a las imágenes subidas mediante la URL: http://localhost:5000/uploads/<nombre-del-archivo>
 app.use('/uploads', express.static('uploads'));
 
 // Conexión a MongoDB Atlas
@@ -30,6 +30,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api', contactRoutes); // Endpoint de contacto
 app.use('/api/stock-movements', stockMovementRoutes); // Endpoint de movimientos de stock
+
+// MONTAR RUTAS DEL CARRITO
+app.use('/api/cart', cartRoutes); // <-- Asegúrate de llamar aquí a cartRoutes
 
 // Ruta de prueba
 app.get('/', (req, res) => {
