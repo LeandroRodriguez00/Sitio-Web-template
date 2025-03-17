@@ -31,6 +31,13 @@ const neonBorderWhite = keyframes`
   100% { box-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 15px #ffffff; }
 `;
 
+const commonSx = {
+  '& .MuiFilledInput-root': {
+    '&:before': { borderBottomColor: '#fff' },
+    '&:after': { borderBottomColor: '#fff' }
+  }
+};
+
 const ContactModal = ({ open, handleClose }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -51,8 +58,6 @@ const ContactModal = ({ open, handleClose }) => {
     setLoading(true);
     setError('');
     try {
-      // Se envía la información del formulario a un endpoint configurado para enviar el email.
-      // El endpoint deberá encargarse de enviar el email a un destinatario predefinido.
       await axios.post('http://localhost:5000/api/contact', formData);
       setSuccess(true);
       setFormData({ name: '', email: '', phone: '', message: '' });
@@ -124,6 +129,7 @@ const ContactModal = ({ open, handleClose }) => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#fff' } }}
                   InputProps={{ style: { color: '#fff' } }}
+                  sx={commonSx}
                 />
                 <TextField 
                   fullWidth
@@ -135,6 +141,7 @@ const ContactModal = ({ open, handleClose }) => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#fff' } }}
                   InputProps={{ style: { color: '#fff' } }}
+                  sx={commonSx}
                 />
                 <TextField 
                   fullWidth
@@ -146,6 +153,7 @@ const ContactModal = ({ open, handleClose }) => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#fff' } }}
                   InputProps={{ style: { color: '#fff' } }}
+                  sx={commonSx}
                 />
                 <TextField 
                   fullWidth
@@ -158,6 +166,7 @@ const ContactModal = ({ open, handleClose }) => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#fff' } }}
                   InputProps={{ style: { color: '#fff' } }}
+                  sx={commonSx}
                 />
                 <Button 
                   type="submit" 

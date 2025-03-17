@@ -19,9 +19,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['admin', 'client'],
     default: 'client',
+  },
+  // Campos para recuperación de contraseña
+  resetPasswordToken: {
+    type: String,
+  },
+  resetPasswordExpires: {
+    type: Date,
   }
 }, {
-  timestamps: true  // Esto añade createdAt y updatedAt automáticamente
+  timestamps: true  // Añade createdAt y updatedAt automáticamente
 });
 
 const User = mongoose.model('User', userSchema);

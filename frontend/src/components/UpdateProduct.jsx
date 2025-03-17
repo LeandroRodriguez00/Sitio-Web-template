@@ -1,3 +1,4 @@
+// src/components/UpdateProduct.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById, updateProduct } from '../services/productService';
@@ -21,6 +22,14 @@ const neonBorderWhite = keyframes`
   50% { box-shadow: 0 0 15px #ffffff, 0 0 25px #ffffff, 0 0 35px #ffffff; }
   100% { box-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 15px #ffffff; }
 `;
+
+// Estilo común para que el underline sea blanco en los TextField variante "filled"
+const commonSx = {
+  '& .MuiFilledInput-root': {
+    '&:before': { borderBottomColor: '#fff' },
+    '&:after': { borderBottomColor: '#fff' }
+  }
+};
 
 const UpdateProduct = () => {
   const { id } = useParams();
@@ -108,8 +117,7 @@ const UpdateProduct = () => {
       dataToSend.append('category', product.category);
       dataToSend.append('available', product.available);
 
-      // Asegúrate de enviar stock como número en forma de cadena
-      // Ejemplo: '5'
+      // Enviamos stock como cadena
       dataToSend.append('stock', String(product.stock));
 
       if (newImageFile) {
@@ -172,6 +180,7 @@ const UpdateProduct = () => {
                 variant="filled"
                 InputLabelProps={{ style: { color: '#fff' } }}
                 InputProps={{ style: { color: '#fff' } }}
+                sx={commonSx}
               />
               <TextField
                 fullWidth
@@ -182,8 +191,8 @@ const UpdateProduct = () => {
                 variant="filled"
                 InputLabelProps={{ style: { color: '#fff' } }}
                 InputProps={{ style: { color: '#fff' } }}
+                sx={commonSx}
               />
-
               {newImageFile ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                   <Typography variant="body2">
@@ -227,7 +236,6 @@ const UpdateProduct = () => {
                   <input type="file" hidden onChange={handleFileChange} />
                 </Button>
               )}
-
               <TextField
                 fullWidth
                 label="Precio"
@@ -238,6 +246,7 @@ const UpdateProduct = () => {
                 variant="filled"
                 InputLabelProps={{ style: { color: '#fff' } }}
                 InputProps={{ style: { color: '#fff' } }}
+                sx={commonSx}
               />
               <TextField
                 fullWidth
@@ -248,10 +257,8 @@ const UpdateProduct = () => {
                 variant="filled"
                 InputLabelProps={{ style: { color: '#fff' } }}
                 InputProps={{ style: { color: '#fff' } }}
+                sx={commonSx}
               />
-
-              {/* No mostramos stock, pero se envía */}
-              {/* dataToSend.append('stock', String(product.stock)); */}
 
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button type="submit" variant="contained" color="secondary">

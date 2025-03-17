@@ -1,5 +1,6 @@
-import React, { useState, useContext } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+// src/App.jsx
+import React, { useState, useContext, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -23,12 +24,14 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { keyframes } from '@emotion/react';
 import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import Home from './components/Home';
 import ProductList from './components/ProductList';
 import CreateProduct from './components/CreateProduct';
 import UpdateProduct from './components/UpdateProduct';
 import Checkout from './components/Checkout';
-import AdminPanel from './components/AdminPanel'; // Panel de administración
+import AdminPanel from './components/AdminPanel';
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -57,9 +60,10 @@ function AppContent() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
+  const location = useLocation();
 
   const toggleDrawer = (open) => (event) => {
     if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -67,6 +71,15 @@ function AppContent() {
     }
     setDrawerOpen(open);
   };
+
+  // Mostrar el modal de bienvenida solo cuando la ruta sea "/"
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setShowWelcome(true);
+    } else {
+      setShowWelcome(false);
+    }
+  }, [location.pathname]);
 
   // Definir enlaces del navbar según el estado del usuario
   let navLinks = [];
@@ -78,7 +91,6 @@ function AppContent() {
     ];
   } else {
     navLinks = [{ title: 'Productos', path: '/products' }];
-    // Opciones adicionales para administradores
     if (user.role && user.role.toLowerCase() === 'admin') {
       navLinks.push({ title: 'Crear Producto', path: '/products/create' });
       navLinks.push({ title: 'Stock', path: '/admin' });
@@ -160,7 +172,6 @@ function AppContent() {
               >
                 Mi Aplicación Profesional {user ? `- Bienvenido ${user.name}` : ''}
               </Typography>
-              {/* Mostrar carrito solo para usuarios logueados y no admin */}
               {user && user.role.toLowerCase() !== 'admin' && (
                 <IconButton onClick={() => setCartOpen(true)} sx={{ color: '#fff' }}>
                   <ShoppingCartIcon />
@@ -218,7 +229,6 @@ function AppContent() {
                   >
                     Cerrar sesión
                   </Button>
-                  {/* Mostrar carrito solo si el usuario no es admin */}
                   {user.role.toLowerCase() !== 'admin' && (
                     <IconButton onClick={() => setCartOpen(true)} sx={{ color: '#fff' }}>
                       <ShoppingCartIcon />
@@ -231,7 +241,7 @@ function AppContent() {
         </Toolbar>
       </AppBar>
 
-      {/* Modal de Bienvenida */}
+      {/* Modal de Bienvenida (solo se muestra en la raíz) */}
       <Modal
         open={showWelcome}
         onClose={() => setShowWelcome(false)}
@@ -282,6 +292,8 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/products" element={<ProductList />} />
           <Route
             path="/products/create"
@@ -318,7 +330,6 @@ function AppContent() {
         </Routes>
       </Container>
 
-      {/* Integración del CartSidebar */}
       <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} />
     </Box>
   );

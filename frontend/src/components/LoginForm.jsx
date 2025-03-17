@@ -1,3 +1,4 @@
+// src/components/LoginForm.jsx
 import React, { useState, useContext } from 'react';
 import { loginUser } from '../services/authService';
 import { AuthContext } from '../context/AuthContext';
@@ -155,6 +156,22 @@ const LoginForm = () => {
                   {error}
                 </Typography>
               )}
+              {/* Opción "Olvidaste tu contraseña" con color fucsia */}
+              <Typography
+                variant="body2"
+                sx={{
+                  mt: 2,
+                  color: '#f50057',
+                  textDecoration: 'underline',
+                  cursor: 'pointer'
+                }}
+                onClick={() => {
+                  // Redirige a la ruta de recuperación de contraseña
+                  navigate('/forgot-password');
+                }}
+              >
+                ¿Olvidaste tu contraseña?
+              </Typography>
             </CardContent>
           </Card>
         </Box>
