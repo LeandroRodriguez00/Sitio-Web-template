@@ -31,6 +31,13 @@ export const createProduct = async (req, res) => {
       productData.images = [productData.images];
     }
 
+    // Si no se proporciona stock o es una cadena vacía, asignar un valor por defecto (0)
+    if (!productData.stock || productData.stock === '') {
+      productData.stock = 0;
+    } else {
+      productData.stock = Number(productData.stock);
+    }
+
     // Validar datos con Joi
     const { error } = productValidationSchema.validate(productData);
     if (error) {
@@ -41,6 +48,7 @@ export const createProduct = async (req, res) => {
     await newProduct.save();
     res.status(201).json(newProduct);
   } catch (error) {
+    console.error('Error al crear el producto:', error.message);
     res.status(500).json({ message: 'Error al crear el producto' });
   }
 };

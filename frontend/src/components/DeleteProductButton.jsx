@@ -7,7 +7,8 @@ import { AuthContext } from '../context/AuthContext';
 const DeleteProductButton = ({ productId, onDelete }) => {
   const { token } = useContext(AuthContext); // Obtener el token de contexto
 
-  const handleDelete = async () => {
+  const handleDelete = async (e) => {
+    e.stopPropagation(); // Evitar la propagación del evento
     if (!token) {
       console.error('No hay token de autenticación.');
       return;

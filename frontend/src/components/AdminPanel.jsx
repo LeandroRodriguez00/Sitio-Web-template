@@ -11,50 +11,36 @@ import {
   Paper,
   CircularProgress,
   Box,
-  Button,
   TextField,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   Grid,
-  Card
+  Card,
+  Button,
+  IconButton
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import * as XLSX from 'xlsx';
 import EditMovementModal from './EditMovementModal';
 
-// Estilo para campos "Buscar Producto", "Desde" y "Hasta"
+// Estilo para campos de texto (Buscar, Desde, Hasta, Tipo y Orden) usando variante "filled"
 const customFieldSx = {
-  backgroundColor: '#fff',
-  height: '60px',
-  '& .MuiOutlinedInput-root': { height: '60px' },
-  '& .MuiFormLabel-root': {
+  backgroundColor: '#111',
+  borderRadius: 1,
+  '& .MuiFilledInput-root': {
+    backgroundColor: 'transparent',
     color: '#fff',
-    backgroundColor: '#1e1e1e',
-    padding: '0 4px'
+    '&:hover': { backgroundColor: '#222' },
+    '&.Mui-focused': { backgroundColor: '#222' },
+    '&:after': { borderBottomColor: '#fff' }
   },
-  '& .MuiFormLabel-root.MuiInputLabel-shrink': {
-    color: '#fff',
-    backgroundColor: '#1e1e1e'
-  }
-};
-
-// Estilo para campos "Tipo" y "Orden" con etiqueta fucsia (#9c27b0)
-const fuchsiaFieldSx = {
-  backgroundColor: '#fff',
-  height: '60px',
-  '& .MuiOutlinedInput-root': { height: '60px' },
-  '& .MuiFormLabel-root': {
-    color: '#9c27b0',
-    backgroundColor: '#fff',
-    padding: '0 4px'
-  },
-  '& .MuiFormLabel-root.MuiInputLabel-shrink': {
-    color: '#9c27b0',
-    backgroundColor: '#fff'
-  }
+  '& .MuiInputLabel-root': { color: '#fff' },
+  '& .MuiInputLabel-root.Mui-focused': { color: '#fff' }
 };
 
 const AdminPanel = () => {
@@ -154,7 +140,7 @@ const AdminPanel = () => {
     document.body.removeChild(link);
   };
 
-  // Función para eliminar movimiento (actualización suave)
+  // Función para eliminar movimiento
   const handleDelete = async (movementId) => {
     try {
       await axios.delete(`http://localhost:5000/api/stock-movements/${movementId}`, {
@@ -177,7 +163,6 @@ const AdminPanel = () => {
     setEditModalOpen(false);
   };
 
-  // Actualización suave: actualizar el movimiento en el estado local con el objeto actualizado
   const handleMovementUpdated = (updatedMovement) => {
     setMovements((prev) =>
       prev.map((mov) =>
@@ -206,7 +191,7 @@ const AdminPanel = () => {
           <Grid item xs={12} md={3}>
             <TextField
               label="Buscar Producto"
-              variant="outlined"
+              variant="filled"
               fullWidth
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}
@@ -214,15 +199,14 @@ const AdminPanel = () => {
             />
           </Grid>
 
-          {/* Tipo con estilo fucsia */}
+          {/* Tipo */}
           <Grid item xs={12} md={2}>
-            <FormControl fullWidth variant="outlined" sx={{ backgroundColor: '#fff', height: '60px', '& .MuiOutlinedInput-root': { height: '60px' } }}>
-              <InputLabel sx={{ lineHeight: '60px', color: '#9c27b0' }}>Tipo</InputLabel>
+            <FormControl fullWidth variant="filled" sx={customFieldSx}>
+              <InputLabel>Tipo</InputLabel>
               <Select
                 label="Tipo"
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                sx={{ height: '60px' }}
               >
                 <MenuItem value="all">Todos</MenuItem>
                 <MenuItem value="ingreso">Ingreso</MenuItem>
@@ -236,6 +220,7 @@ const AdminPanel = () => {
             <TextField
               label="Desde"
               type="date"
+              variant="filled"
               fullWidth
               InputLabelProps={{ shrink: true }}
               value={startDate}
@@ -249,6 +234,7 @@ const AdminPanel = () => {
             <TextField
               label="Hasta"
               type="date"
+              variant="filled"
               fullWidth
               InputLabelProps={{ shrink: true }}
               value={endDate}
@@ -257,15 +243,14 @@ const AdminPanel = () => {
             />
           </Grid>
 
-          {/* Orden con estilo fucsia */}
+          {/* Orden */}
           <Grid item xs={12} md={2}>
-            <FormControl fullWidth variant="outlined" sx={{ backgroundColor: '#fff', height: '60px', '& .MuiOutlinedInput-root': { height: '60px' } }}>
-              <InputLabel sx={{ lineHeight: '60px', color: '#9c27b0' }}>Orden</InputLabel>
+            <FormControl fullWidth variant="filled" sx={customFieldSx}>
+              <InputLabel>Orden</InputLabel>
               <Select
                 label="Orden"
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
-                sx={{ height: '60px' }}
               >
                 <MenuItem value="desc">Más Reciente</MenuItem>
                 <MenuItem value="asc">Más Antiguo</MenuItem>
@@ -273,13 +258,17 @@ const AdminPanel = () => {
             </FormControl>
           </Grid>
 
-          {/* Botón Refrescar (fucsia) */}
+          {/* Botón Refrescar */}
           <Grid item xs={12} md={1}>
             <Button
               variant="contained"
-              color="secondary"
               onClick={fetchMovements}
-              sx={{ height: '60px' }}
+              sx={{
+                height: '60px',
+                backgroundColor: '#f50057',
+                color: '#fff',
+                '&:hover': { backgroundColor: '#c51162' }
+              }}
             >
               Refrescar
             </Button>
@@ -288,26 +277,34 @@ const AdminPanel = () => {
       </Paper>
 
       {/* Resumen estadístico */}
-      <Card sx={{ mb: 4, p: 2, backgroundColor: '#f5f5f5' }}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+      <Card sx={{ mb: 4, p: 2, backgroundColor: '#1e1e1e' }}>
+        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#fff' }}>
           Resumen de Movimientos
         </Typography>
         <Box sx={{ mt: 1, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          <Typography variant="body1">
+          <Typography variant="body1" sx={{ color: '#fff' }}>
             <strong>Total Movimientos:</strong> {totalMovements}
           </Typography>
-          <Typography variant="body1">
+          <Typography variant="body1" sx={{ color: '#fff' }}>
             <strong>Total Ingresos:</strong> {totalIngresos}
           </Typography>
-          <Typography variant="body1">
+          <Typography variant="body1" sx={{ color: '#fff' }}>
             <strong>Total Egresos:</strong> {totalEgresos}
           </Typography>
-          <Typography variant="body1">
+          <Typography variant="body1" sx={{ color: '#fff' }}>
             <strong>Cambio Neto:</strong> {netChange}
           </Typography>
         </Box>
         <Box sx={{ mt: 2 }}>
-          <Button variant="contained" color="secondary" onClick={handleDownloadXLS}>
+          <Button
+            variant="contained"
+            onClick={handleDownloadXLS}
+            sx={{
+              backgroundColor: '#f50057',
+              color: '#fff',
+              '&:hover': { backgroundColor: '#c51162' }
+            }}
+          >
             Descargar XLS
           </Button>
         </Box>
@@ -336,11 +333,7 @@ const AdminPanel = () => {
                 <TableCell sx={{ color: '#fff' }}>
                   {mov.product?.name || 'N/A'}
                 </TableCell>
-                <TableCell
-                  sx={{
-                    color: mov.type === 'egreso' ? '#ff5252' : '#69f0ae',
-                  }}
-                >
+                <TableCell sx={{ color: mov.type === 'egreso' ? '#ff5252' : '#69f0ae' }}>
                   {mov.quantity}
                 </TableCell>
                 <TableCell sx={{ color: '#fff' }}>{mov.type}</TableCell>
@@ -350,22 +343,31 @@ const AdminPanel = () => {
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button
-                      variant="contained"
+                    {/* Ícono Editar */}
+                    <IconButton
                       size="small"
-                      color="secondary"
+                      sx={{
+                        backgroundColor: '#f50057',
+                        color: '#fff',
+                        '&:hover': { backgroundColor: '#c51162' }
+                      }}
                       onClick={() => handleOpenEdit(mov)}
                     >
-                      Editar
-                    </Button>
-                    <Button
-                      variant="contained"
+                      <EditIcon />
+                    </IconButton>
+
+                    {/* Ícono Borrar */}
+                    <IconButton
                       size="small"
-                      color="secondary"
+                      sx={{
+                        backgroundColor: '#f50057',
+                        color: '#fff',
+                        '&:hover': { backgroundColor: '#c51162' }
+                      }}
                       onClick={() => handleDelete(mov._id)}
                     >
-                      Borrar
-                    </Button>
+                      <DeleteIcon />
+                    </IconButton>
                   </Box>
                 </TableCell>
               </TableRow>

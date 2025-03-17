@@ -12,6 +12,21 @@ import {
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
+// Estilo para los TextField (cantidad y descripción) con variante "filled"
+const customFieldSx = {
+  backgroundColor: '#111',
+  borderRadius: 1,
+  '& .MuiFilledInput-root': {
+    backgroundColor: 'transparent',
+    color: '#fff',
+    '&:hover': { backgroundColor: '#222' },
+    '&.Mui-focused': { backgroundColor: '#222' },
+    '&:after': { borderBottomColor: '#fff' }
+  },
+  '& .MuiInputLabel-root': { color: '#fff' },
+  '& .MuiInputLabel-root.Mui-focused': { color: '#fff' }
+};
+
 const EditMovementModal = ({ open, onClose, movement, onMovementUpdated }) => {
   const { token } = useContext(AuthContext);
   const [quantity, setQuantity] = useState(movement.quantity);
@@ -19,7 +34,7 @@ const EditMovementModal = ({ open, onClose, movement, onMovementUpdated }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Si el movimiento cambia, actualizar los campos locales
+  // Actualizar campos locales cuando el movimiento cambie
   useEffect(() => {
     setQuantity(movement.quantity);
     setDescription(movement.description || '');
@@ -34,8 +49,6 @@ const EditMovementModal = ({ open, onClose, movement, onMovementUpdated }) => {
         { quantity, description },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Asumimos que el endpoint retorna el movimiento actualizado.
-      // Si no es así, podemos crear el objeto actualizado a partir de los datos actuales.
       const updatedMovement = {
         ...movement,
         quantity,
@@ -66,20 +79,23 @@ const EditMovementModal = ({ open, onClose, movement, onMovementUpdated }) => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: 350,
-            bgcolor: 'background.paper',
+            backgroundColor: '#000', // Fondo opaco
+            border: '2px solid #fff',
             borderRadius: 2,
             boxShadow: 24,
-            p: 4
+            p: 4,
+            color: '#fff'
           }}
         >
-          <Typography variant="h6" sx={{ mb: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2, color: '#fff' }}>
             Editar Movimiento
           </Typography>
           <TextField
             label="Cantidad"
             type="number"
             fullWidth
-            sx={{ mb: 2 }}
+            variant="filled"
+            sx={{ mb: 2, ...customFieldSx }}
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
           />
@@ -87,20 +103,39 @@ const EditMovementModal = ({ open, onClose, movement, onMovementUpdated }) => {
             label="Descripción"
             type="text"
             fullWidth
-            sx={{ mb: 2 }}
+            variant="filled"
+            sx={{ mb: 2, ...customFieldSx }}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
           {error && (
-            <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+            <Typography variant="body2" sx={{ mb: 2, color: '#f44336' }}>
               {error}
             </Typography>
           )}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-            <Button variant="outlined" onClick={onClose} disabled={loading}>
+            <Button
+              variant="outlined"
+              onClick={onClose}
+              disabled={loading}
+              sx={{
+                borderColor: '#fff',
+                color: '#fff',
+                '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
+              }}
+            >
               Cancelar
             </Button>
-            <Button variant="contained" onClick={handleUpdate} disabled={loading}>
+            <Button
+              variant="contained"
+              onClick={handleUpdate}
+              disabled={loading}
+              sx={{
+                backgroundColor: '#f50057',
+                color: '#fff',
+                '&:hover': { backgroundColor: '#c51162' }
+              }}
+            >
               {loading ? 'Guardando...' : 'Guardar'}
             </Button>
           </Box>

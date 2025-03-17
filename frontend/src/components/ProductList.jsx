@@ -11,22 +11,24 @@ import {
   CircularProgress,
   Box,
   IconButton,
-  TextField,
   MenuItem,
   Select,
   InputLabel,
   FormControl,
   Button,
   Modal,
+  TextField,
   Backdrop,
   Fade
 } from '@mui/material';
 import { keyframes } from '@emotion/react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Routes, Route } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
 import DeleteProductButton from './DeleteProductButton';
 import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import ProductDetails from './ProductDetails'; // Modal de detalles
 import StockManager from './StockManager'; // Componente para gestionar stock
 
@@ -64,7 +66,7 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { user } = useContext(AuthContext);
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, cartItems } = useContext(CartContext);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -82,8 +84,10 @@ const ProductList = () => {
   const [loginAlertOpen, setLoginAlertOpen] = useState(false);
   const [addToCartModalOpen, setAddToCartModalOpen] = useState(false);
   const [addedProduct, setAddedProduct] = useState(null);
+  const [stockAlertOpen, setStockAlertOpen] = useState(false);
+  const [stockAlertProduct, setStockAlertProduct] = useState(null);
 
-  // Obtener productos desde el servicio
+  // Función para obtener productos desde el servicio
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -139,13 +143,21 @@ const ProductList = () => {
     setDetailsOpen(true);
   };
 
-  // Función para agregar al carrito con modal de confirmación
-  const handleAddToCart = (product) => {
+  // Función para agregar 1 unidad al carrito con validación de stock (considerando lo que ya hay en el carrito)
+  const handleAddToCart = (product, quantity) => {
     if (!user) {
       setLoginAlertOpen(true);
       return;
     }
-    addToCart(product);
+    const cartItem = cartItems.find(item => item.product._id === product._id);
+    const currentCartQuantity = cartItem ? cartItem.quantity : 0;
+    const allowedAddition = product.stock - currentCartQuantity;
+    if (allowedAddition < 1 || quantity > allowedAddition) {
+      setStockAlertProduct(product);
+      setStockAlertOpen(true);
+      return;
+    }
+    addToCart(product, quantity);
     setAddedProduct(product);
     setAddToCartModalOpen(true);
   };
@@ -172,7 +184,7 @@ const ProductList = () => {
             display: 'flex',
             flexWrap: 'wrap',
             gap: 2,
-            justifyContent: 'center',
+            justifyContent: 'center'
           }}
         >
           <TextField
@@ -186,10 +198,12 @@ const ProductList = () => {
               color: '#fff',
               borderRadius: 1,
               border: '1px solid #fff',
-              '& .MuiFilledInput-root': { backgroundColor: 'transparent', color: '#fff' },
               '& .MuiInputLabel-root': { color: '#fff' },
+              '& .MuiInputLabel-root.Mui-focused': { color: '#fff' },
+              '& .MuiFilledInput-root': { backgroundColor: 'transparent', color: '#fff' },
+              '& .MuiFilledInput-underline:after': { borderBottomColor: '#fff' },
               '& .MuiFilledInput-root:hover': { backgroundColor: '#222' },
-              '& .Mui-focused .MuiFilledInput-root': { backgroundColor: '#222' },
+              '& .Mui-focused .MuiFilledInput-root': { backgroundColor: '#222' }
             }}
           />
 
@@ -201,10 +215,12 @@ const ProductList = () => {
               backgroundColor: '#111',
               borderRadius: 1,
               border: '1px solid #fff',
-              '& .MuiFilledInput-root': { backgroundColor: 'transparent', color: '#fff' },
               '& .MuiInputLabel-root': { color: '#fff' },
+              '& .MuiInputLabel-root.Mui-focused': { color: '#fff' },
+              '& .MuiFilledInput-root': { backgroundColor: 'transparent', color: '#fff' },
+              '& .MuiFilledInput-underline:after': { borderBottomColor: '#fff' },
               '& .MuiFilledInput-root:hover': { backgroundColor: '#222' },
-              '& .Mui-focused .MuiFilledInput-root': { backgroundColor: '#222' },
+              '& .Mui-focused .MuiFilledInput-root': { backgroundColor: '#222' }
             }}
           >
             <InputLabel>Categoría</InputLabel>
@@ -219,13 +235,15 @@ const ProductList = () => {
                   '&& .MuiMenuItem-root': { color: '#fff' },
                   '&& .MuiMenuItem-root:hover': { backgroundColor: '#222 !important' },
                   '&& .Mui-selected': { backgroundColor: '#333 !important' },
-                  '&& .Mui-selected:hover': { backgroundColor: '#444 !important' },
-                },
+                  '&& .Mui-selected:hover': { backgroundColor: '#444 !important' }
+                }
               }}
             >
               <MenuItem value="">Todas</MenuItem>
               {categories.map((cat) => (
-                <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+                <MenuItem key={cat} value={cat}>
+                  {cat}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -238,10 +256,12 @@ const ProductList = () => {
               backgroundColor: '#111',
               borderRadius: 1,
               border: '1px solid #fff',
-              '& .MuiFilledInput-root': { backgroundColor: 'transparent', color: '#fff' },
               '& .MuiInputLabel-root': { color: '#fff' },
+              '& .MuiInputLabel-root.Mui-focused': { color: '#fff' },
+              '& .MuiFilledInput-root': { backgroundColor: 'transparent', color: '#fff' },
+              '& .MuiFilledInput-underline:after': { borderBottomColor: '#fff' },
               '& .MuiFilledInput-root:hover': { backgroundColor: '#222' },
-              '& .Mui-focused .MuiFilledInput-root': { backgroundColor: '#222' },
+              '& .Mui-focused .MuiFilledInput-root': { backgroundColor: '#222' }
             }}
           >
             <InputLabel>Ordenar Por</InputLabel>
@@ -256,8 +276,8 @@ const ProductList = () => {
                   '&& .MuiMenuItem-root': { color: '#fff' },
                   '&& .MuiMenuItem-root:hover': { backgroundColor: '#222 !important' },
                   '&& .Mui-selected': { backgroundColor: '#333 !important' },
-                  '&& .Mui-selected:hover': { backgroundColor: '#444 !important' },
-                },
+                  '&& .Mui-selected:hover': { backgroundColor: '#444 !important' }
+                }
               }}
             >
               <MenuItem value="">Ninguno</MenuItem>
@@ -283,7 +303,7 @@ const ProductList = () => {
               py: 1,
               display: 'inline-block',
               animation: `${fadeInUp} 1s ease-out forwards`,
-              opacity: 0,
+              opacity: 0
             }}
           >
             Productos Disponibles
@@ -293,18 +313,17 @@ const ProductList = () => {
         {/* Lista de Productos */}
         <Grid container spacing={4} justifyContent="center">
           {currentProducts.map((product, index) => {
-            const imageUrl =
-              product.images && product.images.length > 0
-                ? `http://localhost:5000/uploads/${product.images[0]}`
-                : 'https://via.placeholder.com/300';
-
+            const hasImage = product.images && product.images.length > 0;
+            const imageUrl = hasImage
+              ? `http://localhost:5000/uploads/${product.images[0]}`
+              : null;
             return (
               <Grid item key={product._id} xs={12} sm={6} md={4}>
                 <Box
                   sx={{
                     transition: 'transform 0.3s ease',
                     '&:hover': { transform: 'scale(1.05)' },
-                    cursor: 'pointer',
+                    cursor: 'pointer'
                   }}
                   onClick={() => handleOpenDetails(product._id)}
                 >
@@ -320,15 +339,106 @@ const ProductList = () => {
                       animation: `${fadeInUp} 1s ease-out forwards`,
                       animationDelay: `${index * 0.1}s`,
                       opacity: 0,
-                      '&:hover': { boxShadow: '0 0 10px rgba(255,255,255,0.3)' },
+                      position: 'relative'
                     }}
                   >
-                    <CardMedia
-                      component="img"
-                      image={imageUrl}
-                      alt={product.name}
-                      sx={{ height: 200, objectFit: 'cover' }}
-                    />
+                    {hasImage ? (
+                      <Box sx={{ position: 'relative', height: 200 }}>
+                        <CardMedia
+                          component="img"
+                          image={imageUrl}
+                          alt={product.name}
+                          sx={{
+                            height: '100%',
+                            objectFit: 'cover',
+                            filter: product.stock === 0 ? 'grayscale(100%)' : 'none'
+                          }}
+                        />
+                        {product.stock === 0 && (
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              pointerEvents: 'none',
+                              zIndex: 2
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                width: '140%',
+                                height: 40,
+                                backgroundColor: 'rgba(245, 0, 87, 0.5)',
+                                transform: 'rotate(-45deg)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <Typography variant="h6" sx={{ color: '#fff', fontWeight: 'bold', letterSpacing: 2 }}>
+                                SIN STOCK
+                              </Typography>
+                            </Box>
+                          </Box>
+                        )}
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          height: 200,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: '#222',
+                          border: '1px solid #fff',
+                          borderRadius: 1,
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                          p: 2,
+                          position: 'relative'
+                        }}
+                      >
+                        <Typography variant="subtitle1" sx={{ color: '#fff', fontStyle: 'italic' }}>
+                          Producto sin imagen
+                        </Typography>
+                        {product.stock === 0 && (
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              pointerEvents: 'none',
+                              zIndex: 2
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                width: '140%',
+                                height: 40,
+                                backgroundColor: 'rgba(245, 0, 87, 0.5)',
+                                transform: 'rotate(-45deg)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <Typography variant="h6" sx={{ color: '#fff', fontWeight: 'bold', letterSpacing: 2 }}>
+                                SIN STOCK
+                              </Typography>
+                            </Box>
+                          </Box>
+                        )}
+                      </Box>
+                    )}
                     <CardContent sx={{ flexGrow: 1, color: '#fff' }}>
                       <Typography gutterBottom variant="h6" component="h2">
                         {product.name}
@@ -351,17 +461,13 @@ const ProductList = () => {
                                 '&:hover': { backgroundColor: 'rgba(76, 175, 80, 0.3)' },
                                 transition: '0.3s',
                                 borderRadius: '12px',
-                                p: 1.2,
+                                p: 1.2
                               }}
                             >
                               <EditIcon />
                             </IconButton>
-                            <DeleteProductButton
-                              productId={product._id}
-                              onDelete={fetchProducts}
-                            />
+                            <DeleteProductButton productId={product._id} onDelete={fetchProducts} />
                           </Box>
-                          {/* Contenedor que evita la propagación del clic al abrir el modal */}
                           <Box onClick={(e) => e.stopPropagation()}>
                             <StockManager
                               productId={product._id}
@@ -377,16 +483,43 @@ const ProductList = () => {
                           </Box>
                         </>
                       ) : (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToCart(product);
-                          }}
-                        >
-                          Agregar al carrito
-                        </Button>
+                        <Box sx={{ mt: 2 }} onClick={(e) => e.stopPropagation()}>
+                          <Button
+                            variant="contained"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!user) {
+                                setLoginAlertOpen(true);
+                                return;
+                              }
+                              // Validar stock: obtener cantidad en el carrito para este producto
+                              const cartItem = cartItems.find(item => item.product._id === product._id);
+                              const currentCartQuantity = cartItem ? cartItem.quantity : 0;
+                              const allowedAddition = product.stock - currentCartQuantity;
+                              if (allowedAddition < 1 || 1 > allowedAddition) {
+                                setStockAlertProduct(product);
+                                setStockAlertOpen(true);
+                                return;
+                              }
+                              // En ProductList se agrega siempre 1 unidad
+                              handleAddToCart(product, 1);
+                            }}
+                            sx={{
+                              backgroundColor: 'rgba(245, 0, 87, 0.85)',
+                              color: '#fff',
+                              border: '1px solid #f50057',
+                              borderRadius: '8px',
+                              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                              '&:hover': {
+                                transform: 'scale(1.05)',
+                                backgroundColor: 'rgba(245, 0, 87, 0.95)',
+                                boxShadow: '0 0 8px rgba(245, 0, 87, 0.3)'
+                              }
+                            }}
+                          >
+                            Agregar al carrito
+                          </Button>
+                        </Box>
                       )}
                     </CardContent>
                   </Card>
@@ -429,8 +562,8 @@ const ProductList = () => {
         open={detailsOpen}
         handleClose={() => setDetailsOpen(false)}
         productId={selectedProductId}
-        onAddToCart={(prod) => {
-          console.log('Agregar al carrito:', prod);
+        onAddToCart={(prod, qty) => {
+          console.log('Agregar al carrito:', prod, qty);
           setDetailsOpen(false);
         }}
       />
@@ -440,10 +573,9 @@ const ProductList = () => {
         open={loginAlertOpen}
         onClose={() => setLoginAlertOpen(false)}
         closeAfterTransition
-        BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 700,
-          sx: { backgroundColor: 'rgba(0, 0, 0, 1)', transition: 'background-color 0.7s ease-in-out' },
+          sx: { backgroundColor: 'rgba(0, 0, 0, 1)', transition: 'background-color 0.7s ease-in-out' }
         }}
       >
         <Fade in={loginAlertOpen} timeout={700}>
@@ -461,7 +593,7 @@ const ProductList = () => {
               borderRadius: 3,
               animation: `${modalZoomIn} 0.6s ease-out, ${neonBorderWhite} 1.5s infinite alternate`,
               color: '#fff',
-              border: '2px solid #ffffff',
+              border: '2px solid #ffffff'
             }}
           >
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#fff' }}>
@@ -489,10 +621,9 @@ const ProductList = () => {
         open={addToCartModalOpen}
         onClose={() => setAddToCartModalOpen(false)}
         closeAfterTransition
-        BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 700,
-          sx: { backgroundColor: 'rgba(0, 0, 0, 1)', transition: 'background-color 0.7s ease-in-out' },
+          sx: { backgroundColor: 'rgba(0, 0, 0, 1)', transition: 'background-color 0.7s ease-in-out' }
         }}
       >
         <Fade in={addToCartModalOpen} timeout={700}>
@@ -510,7 +641,7 @@ const ProductList = () => {
               borderRadius: 3,
               animation: `${modalZoomIn} 0.6s ease-out, ${neonBorderWhite} 1.5s infinite alternate`,
               color: '#fff',
-              border: '2px solid #ffffff',
+              border: '2px solid #ffffff'
             }}
           >
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#fff' }}>
@@ -519,11 +650,57 @@ const ProductList = () => {
             <Typography variant="body1" sx={{ mb: 3, color: '#e0e0e0' }}>
               {addedProduct && addedProduct.name} se ha agregado al carrito.
             </Typography>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => setAddToCartModalOpen(false)}
-            >
+            <Button variant="contained" color="secondary" onClick={() => setAddToCartModalOpen(false)}>
+              Cerrar
+            </Button>
+          </Box>
+        </Fade>
+      </Modal>
+
+      {/* Modal de Aviso para Stock Insuficiente */}
+      <Modal
+        open={stockAlertOpen}
+        onClose={() => setStockAlertOpen(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 700,
+          sx: { backgroundColor: 'rgba(0, 0, 0, 1)', transition: 'background-color 0.7s ease-in-out' }
+        }}
+      >
+        <Fade in={stockAlertOpen} timeout={700}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: { xs: '90%', sm: 400 },
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              boxShadow: 24,
+              p: 4,
+              textAlign: 'center',
+              borderRadius: 3,
+              animation: `${modalZoomIn} 0.6s ease-out, ${neonBorderWhite} 1.5s infinite alternate`,
+              color: '#fff',
+              border: '2px solid #ffffff'
+            }}
+          >
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#fff' }}>
+              Stock Insuficiente
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, color: '#e0e0e0' }}>
+              {(() => {
+                const cartItem = stockAlertProduct && cartItems.find(item => item.product._id === stockAlertProduct._id);
+                const currentCartQuantity = cartItem ? cartItem.quantity : 0;
+                const allowedAddition = stockAlertProduct ? stockAlertProduct.stock - currentCartQuantity : 0;
+                if (allowedAddition < 1) {
+                  return `Ya tienes ${currentCartQuantity} unidad(es) en tu carrito y no puedes agregar más, ya que el stock total es ${stockAlertProduct?.stock}.`;
+                } else {
+                  return `Ya tienes ${currentCartQuantity} unidad(es) en tu carrito. Solo puedes agregar hasta ${allowedAddition} unidad(es) más (stock total: ${stockAlertProduct?.stock}).`;
+                }
+              })()}
+            </Typography>
+            <Button variant="contained" color="secondary" onClick={() => setStockAlertOpen(false)}>
               Cerrar
             </Button>
           </Box>

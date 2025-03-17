@@ -1,3 +1,4 @@
+// src/components/StockManager.jsx
 import React, { useState } from 'react';
 import {
   TextField,
@@ -25,13 +26,19 @@ const StockManager = ({ productId, currentStock, onStockUpdate }) => {
   };
 
   const handleUpdateStock = async () => {
-    setLoading(true);
     setMessage('');
+    // Convertir adjustment a número
+    const quantity = Number(adjustment);
+
+    // Validar que el ajuste no deje el stock negativo
+    if (currentStock + quantity < 0) {
+      setMessage('La cantidad a descontar supera el stock disponible.');
+      return;
+    }
+
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      // Convertir adjustment a número
-      const quantity = Number(adjustment);
-
       const response = await axios.patch(
         `http://localhost:5000/api/products/${productId}/stock`,
         { quantity, description },
@@ -57,17 +64,18 @@ const StockManager = ({ productId, currentStock, onStockUpdate }) => {
     <Card
       sx={{
         mt: 2,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#111',
         borderRadius: 2,
-        boxShadow: '0 1px 5px rgba(0,0,0,0.2)',
-        maxWidth: 360
+        boxShadow: '0 1px 5px rgba(0,0,0,0.5)',
+        maxWidth: 360,
+        border: '1px solid #fff'
       }}
     >
       <CardContent>
-        <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
+        <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold', color: '#fff' }}>
           Gestión de Stock
         </Typography>
-        <Typography variant="body1" sx={{ mb: 2 }}>
+        <Typography variant="body1" sx={{ mb: 2, color: '#fff' }}>
           Stock actual: <strong>{currentStock}</strong>
         </Typography>
 
@@ -80,6 +88,17 @@ const StockManager = ({ productId, currentStock, onStockUpdate }) => {
             variant="outlined"
             fullWidth
             helperText="Cantidad a sumar (+) o restar (-)"
+            InputLabelProps={{ style: { color: '#fff' } }}
+            sx={{
+              backgroundColor: '#222',
+              '& .MuiOutlinedInput-root': {
+                color: '#fff',
+                '& fieldset': { borderColor: '#fff' },
+                '&:hover fieldset': { borderColor: '#fff' },
+                '&.Mui-focused fieldset': { borderColor: '#f50057' }
+              },
+              '& .MuiFormHelperText-root': { color: '#e0e0e0' }
+            }}
           />
 
           <TextField
@@ -90,13 +109,31 @@ const StockManager = ({ productId, currentStock, onStockUpdate }) => {
             variant="outlined"
             fullWidth
             helperText="Breve descripción o motivo del ajuste"
+            InputLabelProps={{ style: { color: '#fff' } }}
+            sx={{
+              backgroundColor: '#222',
+              '& .MuiOutlinedInput-root': {
+                color: '#fff',
+                '& fieldset': { borderColor: '#fff' },
+                '&:hover fieldset': { borderColor: '#fff' },
+                '&.Mui-focused fieldset': { borderColor: '#f50057' }
+              },
+              '& .MuiFormHelperText-root': { color: '#e0e0e0' }
+            }}
           />
 
           <Button
             variant="contained"
             onClick={handleUpdateStock}
             disabled={loading}
-            sx={{ alignSelf: 'flex-start' }}
+            sx={{
+              alignSelf: 'flex-start',
+              backgroundColor: '#f50057',
+              color: '#fff',
+              '&:hover': {
+                backgroundColor: '#c51162'
+              }
+            }}
           >
             {loading ? (
               <CircularProgress size={24} sx={{ color: '#fff' }} />
@@ -107,7 +144,7 @@ const StockManager = ({ productId, currentStock, onStockUpdate }) => {
         </Box>
 
         {message && (
-          <Typography variant="body2" sx={{ mt: 2, color: '#00796b' }}>
+          <Typography variant="body2" sx={{ mt: 2, color: '#e0e0e0' }}>
             {message}
           </Typography>
         )}

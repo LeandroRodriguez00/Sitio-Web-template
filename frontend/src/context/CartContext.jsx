@@ -23,14 +23,14 @@ export const CartProvider = ({ children }) => {
       const res = await axios.get('http://localhost:5000/api/cart', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Se asume que el backend devuelve un objeto con { items: [...] }
+      // Se espera que el backend devuelva un objeto con { items: [...] }
       setCartItems(res.data.items || []);
     } catch (error) {
       console.error('Error al obtener el carrito:', error);
     }
   };
 
-  // Función para agregar un producto al carrito
+  // Función para agregar un producto al carrito, recibiendo "quantity" (por defecto 1)
   const addToCart = async (product, quantity = 1) => {
     try {
       const res = await axios.post(
@@ -38,8 +38,13 @@ export const CartProvider = ({ children }) => {
         { productId: product._id, quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Actualiza el estado con el carrito devuelto por el backend
-      setCartItems(res.data.items);
+      // Si la respuesta incluye los ítems actualizados, se actualiza el estado;
+      // en caso contrario, se vuelve a obtener el carrito desde el backend.
+      if (res.data.items) {
+        setCartItems(res.data.items);
+      } else {
+        await fetchCartFromDB();
+      }
     } catch (error) {
       console.error('Error al agregar producto al carrito:', error);
     }
@@ -82,7 +87,7 @@ export const CartProvider = ({ children }) => {
     <CartContext.Provider
       value={{
         cartItems,
-        addToCart,
+        addToCart,        // Se usa addToCart(product, quantity)
         updateQuantity,
         removeFromCart,
         clearCart,

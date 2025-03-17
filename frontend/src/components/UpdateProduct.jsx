@@ -15,7 +15,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { keyframes } from '@emotion/react';
 
-// Animación de borde neón blanco para el contenedor principal
+// Animación de borde neón blanco
 const neonBorderWhite = keyframes`
   0% { box-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 15px #ffffff; }
   50% { box-shadow: 0 0 15px #ffffff, 0 0 25px #ffffff, 0 0 35px #ffffff; }
@@ -26,6 +26,7 @@ const UpdateProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // Estado local: guardamos stock pero NO lo mostramos
   const [product, setProduct] = useState({
     name: '',
     description: '',
@@ -33,24 +34,31 @@ const UpdateProduct = () => {
     price: '',
     category: '',
     available: true,
+    stock: 0, // Se mantendrá internamente
   });
+
   const [newImageFile, setNewImageFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Cargar el producto al montar el componente
+  // Cargar el producto al montar
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const data = await getProductById(id);
+        // Asegúrate de que data.stock sea numérico
+        // Si en la BD es string, conviértelo a número
+        const numericStock = Number(data.stock) || 0;
+
         setProduct({
           name: data.name,
           description: data.description,
-          images: data.images && data.images.length > 0 ? data.images[0] : '',
+          images: data.images?.[0] || '',
           price: data.price,
           category: data.category,
           available: data.available,
+          stock: numericStock,
         });
         setLoading(false);
       } catch (err) {
@@ -62,33 +70,31 @@ const UpdateProduct = () => {
     fetchProduct();
   }, [id]);
 
-  // Maneja cambios en los campos de texto
+  // Manejo de campos (sin mostrar stock)
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProduct((prev) => ({ ...prev, [name]: value }));
+    if (name === 'price') {
+      setProduct((prev) => ({ ...prev, [name]: Number(value) }));
+    } else {
+      setProduct((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  // Maneja la selección de un nuevo archivo
+  // Manejo de archivo
   const handleFileChange = (e) => {
     setNewImageFile(e.target.files[0]);
   };
-
-  // Elimina la nueva imagen seleccionada
-  const handleRemoveNewImage = () => {
-    setNewImageFile(null);
-  };
-
-  // Elimina la imagen actual (cadena vacía)
+  const handleRemoveNewImage = () => setNewImageFile(null);
   const handleRemoveCurrentImage = () => {
     setProduct((prev) => ({ ...prev, images: '' }));
   };
 
-  // Botón cancelar
+  // Cancelar
   const handleCancel = () => {
     navigate('/products');
   };
 
-  // Enviar el formulario con FormData
+  // Submit con FormData
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -101,6 +107,10 @@ const UpdateProduct = () => {
       dataToSend.append('price', product.price);
       dataToSend.append('category', product.category);
       dataToSend.append('available', product.available);
+
+      // Asegúrate de enviar stock como número en forma de cadena
+      // Ejemplo: '5'
+      dataToSend.append('stock', String(product.stock));
 
       if (newImageFile) {
         dataToSend.append('images', newImageFile);
@@ -174,7 +184,6 @@ const UpdateProduct = () => {
                 InputProps={{ style: { color: '#fff' } }}
               />
 
-              {/* Manejo de Imagen */}
               {newImageFile ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                   <Typography variant="body2">
@@ -240,6 +249,9 @@ const UpdateProduct = () => {
                 InputLabelProps={{ style: { color: '#fff' } }}
                 InputProps={{ style: { color: '#fff' } }}
               />
+
+              {/* No mostramos stock, pero se envía */}
+              {/* dataToSend.append('stock', String(product.stock)); */}
 
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button type="submit" variant="contained" color="secondary">

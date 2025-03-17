@@ -100,8 +100,18 @@ const RegisterForm = () => {
                   value={formData.name}
                   onChange={handleChange}
                   variant="filled"
-                  InputLabelProps={{ style: { color: '#fff' } }}
-                  InputProps={{ style: { color: '#fff' } }}
+                  sx={{
+                    backgroundColor: '#111',
+                    color: '#fff',
+                    borderRadius: 1,
+                    border: '1px solid #fff',
+                    '& .MuiInputLabel-root': { color: '#fff' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: '#fff' },
+                    '& .MuiFilledInput-root': { backgroundColor: 'transparent', color: '#fff' },
+                    '& .MuiFilledInput-underline:after': { borderBottomColor: '#fff' },
+                    '& .MuiFilledInput-root:hover': { backgroundColor: '#222' },
+                    '& .Mui-focused .MuiFilledInput-root': { backgroundColor: '#222' }
+                  }}
                 />
                 <TextField
                   fullWidth
@@ -111,8 +121,18 @@ const RegisterForm = () => {
                   value={formData.email}
                   onChange={handleChange}
                   variant="filled"
-                  InputLabelProps={{ style: { color: '#fff' } }}
-                  InputProps={{ style: { color: '#fff' } }}
+                  sx={{
+                    backgroundColor: '#111',
+                    color: '#fff',
+                    borderRadius: 1,
+                    border: '1px solid #fff',
+                    '& .MuiInputLabel-root': { color: '#fff' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: '#fff' },
+                    '& .MuiFilledInput-root': { backgroundColor: 'transparent', color: '#fff' },
+                    '& .MuiFilledInput-underline:after': { borderBottomColor: '#fff' },
+                    '& .MuiFilledInput-root:hover': { backgroundColor: '#222' },
+                    '& .Mui-focused .MuiFilledInput-root': { backgroundColor: '#222' }
+                  }}
                 />
                 <TextField
                   fullWidth
@@ -122,8 +142,18 @@ const RegisterForm = () => {
                   value={formData.password}
                   onChange={handleChange}
                   variant="filled"
-                  InputLabelProps={{ style: { color: '#fff' } }}
-                  InputProps={{ style: { color: '#fff' } }}
+                  sx={{
+                    backgroundColor: '#111',
+                    color: '#fff',
+                    borderRadius: 1,
+                    border: '1px solid #fff',
+                    '& .MuiInputLabel-root': { color: '#fff' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: '#fff' },
+                    '& .MuiFilledInput-root': { backgroundColor: 'transparent', color: '#fff' },
+                    '& .MuiFilledInput-underline:after': { borderBottomColor: '#fff' },
+                    '& .MuiFilledInput-root:hover': { backgroundColor: '#222' },
+                    '& .Mui-focused .MuiFilledInput-root': { backgroundColor: '#222' }
+                  }}
                 />
                 <Button
                   type="submit"
@@ -136,7 +166,11 @@ const RegisterForm = () => {
                   }}
                   disabled={loading}
                 >
-                  {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Registrarse'}
+                  {loading ? (
+                    <CircularProgress size={24} sx={{ color: '#fff' }} />
+                  ) : (
+                    'Registrarse'
+                  )}
                 </Button>
               </Box>
               {error && (
@@ -177,7 +211,7 @@ const RegisterForm = () => {
               border: '2px solid #ffffff'
             }}
           >
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#ffffff' }}>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#fff' }}>
               🎉 Registro Exitoso! 🎉
             </Typography>
             <Typography variant="body1" sx={{ mb: 3, color: '#e0e0e0' }}>

@@ -95,6 +95,24 @@ const CreateProduct = () => {
     }
   };
 
+  // Estilos comunes para los TextField
+  const textFieldStyles = {
+    backgroundColor: 'transparent',
+    '& .MuiFilledInput-root': {
+      backgroundColor: 'transparent',
+      color: '#fff',
+      '&:before': { borderBottomColor: '#fff' },
+      '&:after': { borderBottomColor: '#fff' },
+      '&:hover:before': { borderBottomColor: '#fff' },
+      '&.Mui-focused:before': { borderBottomColor: '#fff' },
+      '&.Mui-focused:after': { borderBottomColor: '#fff' },
+      // No se modifica el fondo al enfocarse:
+      '&.Mui-focused': { backgroundColor: 'transparent' },
+    },
+    '& .MuiInputLabel-root': { color: '#fff' },
+    '& .MuiFormHelperText-root': { color: '#e0e0e0' },
+  };
+
   return (
     <Fade in={true} timeout={1000}>
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, px: 2 }}>
@@ -130,8 +148,7 @@ const CreateProduct = () => {
                 value={formData.name}
                 onChange={handleChange}
                 variant="filled"
-                InputLabelProps={{ style: { color: '#fff' } }}
-                InputProps={{ style: { color: '#fff' } }}
+                sx={textFieldStyles}
               />
               <TextField
                 fullWidth
@@ -140,8 +157,7 @@ const CreateProduct = () => {
                 value={formData.description}
                 onChange={handleChange}
                 variant="filled"
-                InputLabelProps={{ style: { color: '#fff' } }}
-                InputProps={{ style: { color: '#fff' } }}
+                sx={textFieldStyles}
               />
               <TextField
                 fullWidth
@@ -151,8 +167,7 @@ const CreateProduct = () => {
                 value={formData.price}
                 onChange={handleChange}
                 variant="filled"
-                InputLabelProps={{ style: { color: '#fff' } }}
-                InputProps={{ style: { color: '#fff' } }}
+                sx={textFieldStyles}
               />
               <TextField
                 fullWidth
@@ -161,8 +176,7 @@ const CreateProduct = () => {
                 value={formData.category}
                 onChange={handleChange}
                 variant="filled"
-                InputLabelProps={{ style: { color: '#fff' } }}
-                InputProps={{ style: { color: '#fff' } }}
+                sx={textFieldStyles}
               />
               <Button
                 variant="contained"

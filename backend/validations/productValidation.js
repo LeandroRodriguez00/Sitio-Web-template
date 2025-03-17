@@ -16,7 +16,7 @@ export const productValidationSchema = Joi.object({
     ),
     // Caso 2: Un array de strings (nombres de archivos)
     Joi.array().items(Joi.string()),
-    // Caso 3: Un solo string (por ejemplo, si se envía solo un nombre de archivo o una URL)
+    // Caso 3: Un solo string
     Joi.string().allow('')
   )
     .optional()
@@ -30,5 +30,12 @@ export const productValidationSchema = Joi.object({
   category: Joi.string().required().messages({
     'string.empty': 'La categoría es obligatoria'
   }),
-  available: Joi.boolean().optional()
+  available: Joi.boolean().optional(),
+
+  // **AÑADE stock al esquema**:
+  stock: Joi.number().min(0).required().messages({
+    'number.base': 'El stock debe ser un número',
+    'number.min': 'El stock no puede ser negativo',
+    'any.required': 'El stock es obligatorio'
+  })
 });
